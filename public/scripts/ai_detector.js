@@ -54,7 +54,7 @@ const scoreProject = async (payload) => {
     // leave room under typical serverless request-body limits
     if (bodySize > 4 * 1024 * 1024)
         throw new Error(
-            "Upload is too large for the API. Try loading it by Scratch project link.",
+            "Upload is too large for the API. Try loading it by a Scratch project link instead.",
         );
 
     const response = await fetch(API_URL, {
