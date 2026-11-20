@@ -9,6 +9,8 @@ const pieSlice = document.querySelector("#pie-slice");
 const scoreFraction = document.querySelector("#score-fraction");
 const verdict = document.querySelector("#verdict");
 
+const resultsTableBody = document.querySelector("#results-table tbody");
+
 const setBusy = (busy) => {
     uploadBtn.disabled = busy;
     loadBtn.disabled = busy;
@@ -26,6 +28,8 @@ const resetResults = () => {
 
     scoreFraction.textContent = "0 / 0 ACS";
     verdict.textContent = "Waiting...";
+
+    resultsTableBody.innerHTML = "<tr><td>N/A</td><td>N/A</td><td>N/A</td></tr>";
 };
 
 const outputResults = (result) => {
@@ -45,6 +49,26 @@ const outputResults = (result) => {
 
     scoreFraction.textContent = `${result["units"]} / ${result["measurable_units"]} ACS`;
     verdict.textContent = result["band"];
+
+    // populate results table
+    resultsTableBody.replaceChildren();
+    result["contributions"].forEach((contribution) => {
+        const row = document.createElement("tr");
+
+        const testName = document.createElement("td");
+        const testScore = document.createElement("td");
+        const testNotes = document.createElement("td");
+
+        testName.textContent = contribution["name"];
+        testScore.textContent = `${contribution["units"]} / ${contribution["max_score"]}`;
+        testNotes.textContent = contribution["note"];
+
+        row.appendChild(testName);
+        row.appendChild(testScore);
+        row.appendChild(testNotes);
+
+        resultsTableBody.appendChild(row);
+    });
 };
 
 const scoreProject = async (payload) => {
@@ -126,7 +150,7 @@ const openFileDialog = () => {
             resetResults();
 
             try {
-                output.textContent = "Scoring project..."
+                output.textContent = "Scoring project...";
                 const payload = await processSb3(file);
                 await scoreProject(payload);
             } catch (error) {

@@ -169,6 +169,16 @@
     transform: scaleY(-1);
 }
 
+#results-table {
+    width: 100%;
+    flex-grow: 1;
+}
+
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
 @media (max-width: 960px) {
     #project-load-container {
         flex-direction: column;
