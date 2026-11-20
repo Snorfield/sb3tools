@@ -63,7 +63,7 @@
         background-color 200ms ease-out;
 }
 
-#upload {
+#project-upload {
     padding: 32px;
     cursor: pointer;
 
@@ -78,7 +78,7 @@
     isolation: isolate;
 }
 
-#upload::after,
+#project-upload::after,
 #project-load::after,
 #project-link-container::after {
     content: "";
@@ -90,11 +90,11 @@
     border-radius: 6px;
 
     --reveal-angle: 0deg;
-    
+
     transition: --reveal-angle 450ms ease-out;
 }
 
-#upload::after,
+#project-upload::after,
 #project-load::after {
     border: 2px solid var(--container-dark);
 
@@ -125,16 +125,48 @@
     );
 }
 
-#upload:hover,
+#project-upload:hover,
 #project-load:hover {
     background-color: var(--container-light);
     color: var(--text);
 }
 
-#upload:hover::after,
+#project-upload:hover::after,
 #project-load:hover::after,
 #project-link-container:focus-within::after {
     --reveal-angle: 360deg;
+}
+
+#score-result {
+    text-align: center;
+}
+
+#pie {
+    width: 180px;
+    height: 180px;
+    transform: rotate(-90deg);
+    border-radius: 50%;
+}
+
+#pie-bg {
+    fill: #e2e8f0;
+}
+
+#pie-slice {
+    --color: green;
+    fill: none;
+    stroke: var(--color);
+    stroke-width: 32;
+    stroke-dasharray: var(--percent, 0) 100;
+    transform-box: view-box;
+    transform-origin: center;
+    transition:
+        stroke-dasharray 0.35s ease,
+        stroke 0.35s ease;
+}
+
+#pie-slice.negative {
+    transform: scaleY(-1);
 }
 
 @media (max-width: 960px) {
