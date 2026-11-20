@@ -1,0 +1,144 @@
+@property --reveal-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+#project-load-container {
+    padding: 32px;
+    margin: 32px 0;
+    width: fit-content;
+
+    background-color: var(--container);
+    color: var(--bg);
+    font-weight: 700;
+
+    border-radius: 8px;
+    outline: 4px dashed var(--container);
+
+    position: relative;
+    z-index: 1;
+}
+
+#project-link {
+    padding: 8px;
+
+    outline: none;
+    border: none;
+    border-radius: 4px;
+
+    background-color: var(--container-light);
+    color: var(--text);
+    caret-color: var(--text);
+
+    font-weight: 700;
+}
+
+#project-link-container {
+    position: relative;
+    isolation: isolate;
+}
+
+#project-link::placeholder {
+    color: #0003;
+}
+
+#project-load {
+    padding: 8px;
+
+    outline: none;
+    border: none;
+    border-radius: 4px;
+    position: relative;
+    isolation: isolate;
+
+    background-color: var(--bg);
+    color: var(--container);
+
+    font-weight: 700;
+    cursor: pointer;
+
+    transition:
+        color 200ms ease-out,
+        background-color 200ms ease-out;
+}
+
+#upload {
+    padding: 32px;
+    cursor: pointer;
+
+    background-color: var(--bg);
+    color: var(--container);
+    font-weight: 700;
+
+    border: none;
+    border-radius: 4px;
+
+    position: relative;
+    isolation: isolate;
+}
+
+#upload::after,
+#project-load::after,
+#project-link-container::after {
+    content: "";
+
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+
+    border-radius: 6px;
+
+    --reveal-angle: 0deg;
+    
+    transition: --reveal-angle 450ms ease-out;
+}
+
+#upload::after,
+#project-load::after {
+    border: 2px solid var(--text);
+
+    -webkit-mask: conic-gradient(
+        from 0deg,
+        var(--text) 0deg var(--reveal-angle),
+        transparent var(--reveal-angle) 360deg
+    );
+    mask: conic-gradient(
+        from 0deg,
+        var(--text) 0deg var(--reveal-angle),
+        transparent var(--reveal-angle) 360deg
+    );
+}
+
+#project-link-container:focus-within::after {
+    border: 2px solid var(--bg);
+
+    -webkit-mask: conic-gradient(
+        from 0deg,
+        var(--bg) 0deg var(--reveal-angle),
+        transparent var(--reveal-angle) 360deg
+    );
+    mask: conic-gradient(
+        from 0deg,
+        var(--bg) 0deg var(--reveal-angle),
+        transparent var(--reveal-angle) 360deg
+    );
+}
+
+#upload:hover,
+#project-load:hover {
+    background-color: var(--container-light);
+    color: var(--text);
+}
+
+#upload:hover::after,
+#project-load:hover::after,
+#project-link-container:focus-within::after {
+    --reveal-angle: 360deg;
+}
+
+@media (max-width: 960px) {
+    #project-load-container {
+        flex-direction: column;
+    }
+}

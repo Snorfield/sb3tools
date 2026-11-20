@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- styles -->
+        <link href="styles/style.css" rel="stylesheet" />
+        <link rel="stylesheet" href="styles/ai-detector.css" />
+        <link href="assets/sb3tools-logo.png" rel="icon" />
+
+        <!-- fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- fontawesome -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+
+        <title>SB3Tools - AI Detector</title>
+    </head>
+    <nav class="row-align">
+        <img src="assets/sb3tools-logo.png" alt="Logo" width="30" height="30" />
+        <div class="row-align flex-center menu">
+            <a href="index.html"><i class="fa-solid fa-home"></i> Home</a>
+            <a href="team.html"
+                ><i class="fa-solid fa-people-group"></i> Members</a
+            >
+        </div>
+    </nav>
+    <body>
+        <header>
+            <div class="row-align flex-center menu center" id="project-load-container">
+                <button type="button" id="upload" class="row-align flex-center">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                    <p>Upload your project here</p>
+                </button>
+                <div class="column-align flex-center">
+                    <p>or enter a project ID/link:</p>
+                    <div class="row-align">
+                        <div id="project-link-container">
+                            <input
+                                type="text"
+                                name="project-link"
+                                id="project-link"
+                                placeholder="Enter project ID/link..."
+                            />
+                        </div>
+                        <button type="submit" id="project-load">
+                            <i class="fa-solid fa-file-import"></i> Load
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </body>
+</html>
