@@ -126,6 +126,7 @@ const openFileDialog = () => {
             resetResults();
 
             try {
+                output.textContent = "Scoring project..."
                 const payload = await processSb3(file);
                 await scoreProject(payload);
             } catch (error) {
@@ -153,7 +154,7 @@ const getScratchProjectId = (value) => {
     }
 
     if (!["scratch.mit.edu", "www.scratch.mit.edu"].includes(url.hostname)) {
-        throw new Error("The link must be from scratch.mit.edu.");
+        throw new Error("The link must be a Scratch project link.");
     }
 
     const match = url.pathname.match(/^\/projects\/(\d+)(?:\/editor)?\/?$/);
