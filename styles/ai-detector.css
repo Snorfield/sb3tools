@@ -96,16 +96,16 @@
 
 #upload::after,
 #project-load::after {
-    border: 2px solid var(--text);
+    border: 2px solid var(--container-dark);
 
     -webkit-mask: conic-gradient(
         from 0deg,
-        var(--text) 0deg var(--reveal-angle),
+        var(--container-dark) 0deg var(--reveal-angle),
         transparent var(--reveal-angle) 360deg
     );
     mask: conic-gradient(
         from 0deg,
-        var(--text) 0deg var(--reveal-angle),
+        var(--container-dark) 0deg var(--reveal-angle),
         transparent var(--reveal-angle) 360deg
     );
 }
