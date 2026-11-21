@@ -40,6 +40,8 @@ const outputResults = (result) => {
         "Likely human": "green",
     };
 
+    result["contributions"].sort(function(a, b){return b["units"]-a["units"]})
+
     console.log(result);
 
     const percent = (result["units"] / result["measurable_units"]) * 100;
@@ -200,6 +202,8 @@ loadBtn.addEventListener("click", async () => {
         const project_id = getScratchProjectId(linkInput.value);
         output.textContent = "Scoring project...";
         await scoreProject({ project_id });
+        output.textContent = "Done, see results below.";
+        
     } catch (error) {
         showError(error);
     } finally {
