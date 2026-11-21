@@ -11,13 +11,13 @@
           },
           {
             "type": 10,
-            "content": "i totally didnt steal this from sborf"
+            "content": "A collection of tools for Scratch projects, featuring an AI detector, and more coming soon."
           }
         ],
         "accessory": {
           "type": 11,
           "media": {
-            "url": "https://raw.githubusercontent.com/Snorfield/snorfield.github.io/refs/heads/main/assets/snorfield.png"
+            "url": "https://sb3tools.github.io/assets/SB3Tools.png"
           }
         }
       },
@@ -27,22 +27,18 @@
           {
             "type": 2,
             "style": 5,
-            "label": "GitHub",
-            "emoji": {
-              "name": "GitHub",
-              "id": "1249495348183826564"
-            },
-            "url": "https://github.com/Snorfield"
+            "label": "Official website",
+            "url": "https://sb3tools.github.io"
           },
           {
             "type": 2,
             "style": 5,
-            "label": "Modrinth",
+            "label": "Github",
             "emoji": {
-              "name": "modrinth",
-              "id": "1040805511538421890"
+              "name": "Github",
+              "id": "1249495348183826564"
             },
-            "url": "https://modrinth.com/user/Snorfield"
+            "url": "https://github.com/sb3tools"
           }
         ]
       }
