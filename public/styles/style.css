@@ -64,7 +64,9 @@ body {
 
 nav {
     background-color: var(--nav-bg);
-    padding: 24px;
+    padding-block: 19px;
+    padding-inline-start: 19px;
+    padding-inline-end: 24px;
     justify-content: space-between;
 }
 
@@ -77,7 +79,7 @@ nav a {
     transition: color 200ms ease-out;
 }
 
-nav a:not(.dropdown-menu a)::after {
+nav a:not(.dropdown-menu a, .no-hover a)::after {
     content: "";
     position: absolute;
     width: 100%;
@@ -97,7 +99,7 @@ nav a:hover {
     color: var(--nav-hover);
 }
 
-nav a:not(.dropdown-menu a):hover::after {
+nav a:not(.dropdown-menu, .no-hover):hover::after {
     background-color: var(--nav-hover);
     transform: scaleX(1);
     transform-origin: bottom left;
