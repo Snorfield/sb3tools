@@ -11,7 +11,7 @@
           },
           {
             "type": 10,
-            "content": "A collection of tools for Scratch projects, featuring an AI detector, and more coming soon."
+            "content": "A collection of tools for Scratch projects, featuring an AI detector with other tools coming soon."
           }
         ],
         "accessory": {
@@ -27,6 +27,9 @@
           {
             "type": 2,
             "style": 5,
+            "emoji": {
+              "name": "🧭"
+            },
             "label": "Official website",
             "url": "https://sb3tools.github.io"
           },
@@ -39,6 +42,16 @@
               "id": "1249495348183826564"
             },
             "url": "https://github.com/sb3tools"
+          },
+          {
+            "type": 2,
+            "style": 5,
+            "label": "Discord",
+            "emoji": {
+              "name": "Discord",
+              "id": "1573800225305403522"
+            },
+            "url": "https://discord.gg/qBuzYPKS7t"
           }
         ]
       }
