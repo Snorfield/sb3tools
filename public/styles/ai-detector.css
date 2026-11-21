@@ -6,7 +6,7 @@
 
 #project-load-container {
     padding: 32px;
-    margin: 32px 0;
+    margin: 32px auto;
     width: fit-content;
 
     background-color: var(--container);
