@@ -21,6 +21,22 @@
     --container-dark: #376ae1;
 }
 
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #121212;
+    --text: #f5f5f5;
+
+    --nav-bg: #242424;
+    --nav-link: #e5e5ff;
+    --nav-hover: #8fb2ff;
+
+    --dropdown-hover: #303030;
+
+    --container: #315fa8;
+    --container-light: #243a5a;
+    --container-dark: #78a6ff;
+}
+
 body {
     background-color: var(--bg);
     color: var(--text);
@@ -137,6 +153,15 @@ nav a:not(.dropdown-menu, .no-hover):hover::after {
 .dropdown:hover .dropdown-menu,
 .dropdown:focus-within .dropdown-menu {
     display: block;
+}
+
+.theme {
+    font-size: larger;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    padding: 8px;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {

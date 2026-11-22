@@ -4,6 +4,10 @@
     initial-value: 0deg;
 }
 
+:root {
+    --pie-bg: #e2e8f0;
+}
+
 #project-load-container {
     padding: 32px;
     margin: 32px auto;
@@ -149,7 +153,7 @@
 }
 
 #pie-bg {
-    fill: #e2e8f0;
+    fill: var(--pie-bg);
 }
 
 #pie-slice {
