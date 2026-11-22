@@ -53,6 +53,10 @@
     color: #0003;
 }
 
+:root[data-theme="dark"] #project-link::placeholder {
+    color: #fff3;
+}
+
 #project-load {
     padding: 8px;
 
