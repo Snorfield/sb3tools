@@ -8,6 +8,10 @@
     --pie-bg: #e2e8f0;
 }
 
+:root[data-theme="dark"] {
+    --pie-bg: #28292a;
+}
+
 #project-load-container {
     padding: 32px;
     margin: 32px auto;
