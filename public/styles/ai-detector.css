@@ -156,6 +156,17 @@ main {
     margin-inline: auto;
 }
 
+#processing-progress {
+    display: block;
+    width: 100%;
+    height: 8px;
+    margin-bottom: 12px;
+}
+
+#processing-progress[hidden] {
+    display: none;
+}
+
 main > .row-align {
     display: grid;
     grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
@@ -206,7 +217,8 @@ main > .row-align > .column-align:first-child {
     flex-grow: 1;
 }
 
-th, td {
+th,
+td {
     padding: 12px 15px;
     border-bottom: 1px solid #e2e8f0;
 }

@@ -29,7 +29,13 @@
         <title>SB3Tools - AI Detector</title>
     </head>
     <nav class="row-align">
-        <a href="index.html" class="no-hover"><img class="site-logo" src="assets/SB3Tools_wide.svg" alt="Logo" height="40"></a>
+        <a href="index.html" class="no-hover"
+            ><img
+                class="site-logo"
+                src="assets/SB3Tools_wide.svg"
+                alt="Logo"
+                height="40"
+        /></a>
         <div class="row-align flex-center menu">
             <a href="index.html"><i class="fa-solid fa-home"></i> Home</a>
             <a href="team.html"
@@ -73,16 +79,22 @@
         </header>
 
         <main>
+            <progress
+                id="processing-progress"
+                max="100"
+                value="0"
+                aria-label="Processing project"
+                hidden
+            ></progress>
+
             <pre id="score-result">Waiting for project...</pre>
-            <br>
-            <hr>
-            <br>
-            <div class="row-align flex-space" style="align-items: start;">
+            <br />
+            <hr />
+            <br />
+
+            <div class="row-align flex-space" style="align-items: start">
                 <div class="column-align flex-center">
-                    <svg
-                        id="pie"
-                        viewBox="0 0 32 32"
-                    >
+                    <svg id="pie" viewBox="0 0 32 32">
                         <circle id="pie-bg" r="16" cx="16" cy="16" />
                         <circle
                             id="pie-slice"

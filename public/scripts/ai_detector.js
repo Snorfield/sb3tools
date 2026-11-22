@@ -4,6 +4,7 @@ const uploadBtn = document.querySelector("#project-upload");
 const loadBtn = document.querySelector("#project-load");
 const linkInput = document.querySelector("#project-link");
 const output = document.querySelector("#score-result");
+const progress = document.querySelector("#processing-progress");
 
 const pieSlice = document.querySelector("#pie-slice");
 const scoreFraction = document.querySelector("#score-fraction");
@@ -11,9 +12,15 @@ const verdict = document.querySelector("#verdict");
 
 const resultsTableBody = document.querySelector("#results-table tbody");
 
+const setProgress = (value) => {
+    progress.value = value;
+};
+
 const setBusy = (busy) => {
     uploadBtn.disabled = busy;
     loadBtn.disabled = busy;
+    progress.hidden = !busy;
+    if (busy) setProgress(0);
 };
 
 const showError = (error) => {
@@ -29,7 +36,8 @@ const resetResults = () => {
     scoreFraction.textContent = "0 / 0 ACS";
     verdict.textContent = "Waiting...";
 
-    resultsTableBody.innerHTML = "<tr><td>N/A</td><td>N/A</td><td>N/A</td></tr>";
+    resultsTableBody.innerHTML =
+        "<tr><td>N/A</td><td>N/A</td><td>N/A</td></tr>";
 };
 
 const outputResults = (result) => {
@@ -40,7 +48,9 @@ const outputResults = (result) => {
         "Likely human": "green",
     };
 
-    result["contributions"].sort(function(a, b){return b["units"]-a["units"]})
+    result["contributions"].sort(function (a, b) {
+        return b["units"] - a["units"];
+    });
 
     console.log(result);
 
@@ -83,11 +93,13 @@ const scoreProject = async (payload) => {
             "Upload is too large for the API. Try loading it by a Scratch project link instead.",
         );
 
+    setProgress(70);
     const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body,
     });
+    setProgress(90);
 
     let data;
     try {
@@ -106,6 +118,7 @@ const scoreProject = async (payload) => {
     if (!data.result) throw new Error("API response did not contain a score.");
 
     outputResults(data.result); // temporary for now, will add detailed logging later
+    setProgress(100);
 };
 
 const processSb3 = async (file) => {
@@ -113,7 +126,9 @@ const processSb3 = async (file) => {
         throw new Error("JSZip is not loaded.");
     }
 
+    setProgress(10);
     const zip = await JSZip.loadAsync(file);
+    setProgress(20);
     const projectFile = zip.file("project.json");
 
     if (!projectFile) {
@@ -124,13 +139,17 @@ const processSb3 = async (file) => {
     if (!project || typeof project !== "object" || Array.isArray(project)) {
         throw new Error("project.json must contain a JSON object.");
     }
+    setProgress(35);
 
     const assets = {};
-    for (const entry of Object.values(zip.files)) {
-        if (!entry.dir && entry.name !== "project.json") {
-            assets[entry.name] = await entry.async("base64");
-        }
+    const assetFiles = Object.values(zip.files).filter(
+        (entry) => !entry.dir && entry.name !== "project.json",
+    );
+    for (const [index, entry] of assetFiles.entries()) {
+        assets[entry.name] = await entry.async("base64");
+        setProgress(35 + Math.round((25 * (index + 1)) / assetFiles.length));
     }
+    if (assetFiles.length === 0) setProgress(60);
 
     return { project, assets };
 };
@@ -152,6 +171,7 @@ const openFileDialog = () => {
             resetResults();
 
             try {
+                setProgress(5);
                 output.textContent = "Scoring project...";
                 const payload = await processSb3(file);
                 await scoreProject(payload);
@@ -200,10 +220,10 @@ loadBtn.addEventListener("click", async () => {
 
     try {
         const project_id = getScratchProjectId(linkInput.value);
+        setProgress(35);
         output.textContent = "Scoring project...";
         await scoreProject({ project_id });
         output.textContent = "Done, see results below.";
-        
     } catch (error) {
         showError(error);
     } finally {
