@@ -73,7 +73,7 @@ const resetResults = () => {
 const outputResults = (result) => {
 	const bandMap = {
 		"Likely AI": "red",
-		Suspicious: "yellow",
+		Suspicious: "#ffcc00",
 		Inconclusive: "gray",
 		"Likely human": "green",
 	};
