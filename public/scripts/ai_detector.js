@@ -30,10 +30,14 @@ const animateProgress = () => {
 	progressAnimationFrame = requestAnimationFrame(animateProgress);
 };
 
-const setProgress = (value) => {
+const setProgress = (value, instant = false) => {
 	progressTarget = value;
-	if (progressAnimationFrame === null) {
-		progressAnimationFrame = requestAnimationFrame(animateProgress);
+	if (instant) {
+		progress.value = value
+ 	} else {
+		if (progressAnimationFrame === null) {
+			progressAnimationFrame = requestAnimationFrame(animateProgress);
+		}
 	}
 };
 
@@ -125,7 +129,7 @@ const scoreProject = async (payload) => {
 			"Upload is too large for the API. Try loading it by a Scratch project link instead.",
 		);
 
-	setProgress(30);
+	setProgress(0, true);
 	const response = await fetch(API_URL, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -186,11 +190,13 @@ const scoreProject = async (payload) => {
 				data.total > 0
 			) {
 				const [start, end] =
-					stage === "analyzing"
-						? [30, 60]
-						: stage === "scoring"
-						  ? [60, 99]
-						  : [30, 99];
+					stage === "downloading"
+						? [0, 30]
+						: stage === "analyzing"
+							? [30, 60]
+							: stage === "scoring"
+							? [60, 99]
+							: [30, 99];
 				setProgress(
 					Math.min(
 						end,
