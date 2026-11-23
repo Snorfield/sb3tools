@@ -182,12 +182,6 @@ main > .row-align > .column-align:first-child {
     align-items: center;
 }
 
-.theme {
-    position: static;
-    align-self: flex-end;
-    margin: 0 20px 20px;
-}
-
 #pie {
     width: 180px;
     height: 180px;
