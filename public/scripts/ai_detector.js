@@ -12,221 +12,353 @@ const verdict = document.querySelector("#verdict");
 
 const resultsTableBody = document.querySelector("#results-table tbody");
 
-const setProgress = (value) => {
-    progress.value = value;
+let progressTarget = progress.value;
+let progressAnimationFrame = null;
+let progressAnimationWaiters = [];
+
+const animateProgress = () => {
+	const difference = progressTarget - progress.value;
+	if (Math.abs(difference) < 0.01) {
+		progress.value = progressTarget;
+		progressAnimationFrame = null;
+		progressAnimationWaiters.forEach((resolve) => resolve());
+		progressAnimationWaiters = [];
+		return;
+	}
+
+	progress.value += Math.sign(difference) * Math.min(Math.abs(difference), 1);
+	progressAnimationFrame = requestAnimationFrame(animateProgress);
 };
 
+const setProgress = (value) => {
+	progressTarget = value;
+	if (progressAnimationFrame === null) {
+		progressAnimationFrame = requestAnimationFrame(animateProgress);
+	}
+};
+
+const waitForProgress = () =>
+	new Promise((resolve) => {
+		if (progressAnimationFrame === null) {
+			resolve();
+		} else {
+			progressAnimationWaiters.push(resolve);
+		}
+	});
+
 const setBusy = (busy) => {
-    uploadBtn.disabled = busy;
-    loadBtn.disabled = busy;
-    progress.hidden = !busy;
-    if (busy) setProgress(0);
+	uploadBtn.disabled = busy;
+	loadBtn.disabled = busy;
+	progress.hidden = !busy;
+	if (busy) setProgress(0);
 };
 
 const showError = (error) => {
-    console.error(error);
-    output.textContent = `Error: ${error instanceof Error ? error.message : String(error)}`;
+	console.error(error);
+	output.textContent = `Error: ${error instanceof Error ? error.message : String(error)}`;
 };
 
 const resetResults = () => {
-    pieSlice.style.setProperty("--percent", 0);
-    pieSlice.style.setProperty("--color", "green");
-    pieSlice.classList.remove("negative");
+	pieSlice.style.setProperty("--percent", 0);
+	pieSlice.style.setProperty("--color", "green");
+	pieSlice.classList.remove("negative");
 
-    scoreFraction.textContent = "0 / 0 ACS";
-    verdict.textContent = "Waiting...";
+	scoreFraction.textContent = "0 / 0 ACS";
+	verdict.textContent = "Waiting...";
 
-    resultsTableBody.innerHTML =
-        "<tr><td>N/A</td><td>N/A</td><td>N/A</td></tr>";
+	resultsTableBody.innerHTML =
+		"<tr><td>N/A</td><td>N/A</td><td>N/A</td></tr>";
 };
 
 const outputResults = (result) => {
-    const bandMap = {
-        "Likely AI": "red",
-        Suspicious: "yellow",
-        Inconclusive: "gray",
-        "Likely human": "green",
-    };
+	const bandMap = {
+		"Likely AI": "red",
+		Suspicious: "yellow",
+		Inconclusive: "gray",
+		"Likely human": "green",
+	};
 
-    result["contributions"].sort(function (a, b) {
-        return b["units"] - a["units"];
-    });
+	result["contributions"].sort(function (a, b) {
+		return b["units"] - a["units"];
+	});
 
-    console.log(result);
+	console.log(result);
 
-    const percent = (result["units"] / result["measurable_units"]) * 100;
-    pieSlice.style.setProperty("--percent", Math.abs(percent));
-    pieSlice.classList.toggle("negative", percent < 0);
-    pieSlice.style.setProperty("--color", bandMap[result["band"]]);
+	const percent = (result["units"] / result["measurable_units"]) * 100;
+	pieSlice.style.setProperty("--percent", Math.abs(percent));
+	pieSlice.classList.toggle("negative", percent < 0);
+	pieSlice.style.setProperty("--color", bandMap[result["band"]]);
 
-    scoreFraction.textContent = `${result["units"]} / ${result["measurable_units"]} ACS`;
-    verdict.textContent = result["band"];
+	scoreFraction.textContent = `${result["units"]} / ${result["measurable_units"]} ACS`;
+	verdict.textContent = result["band"];
 
-    // populate results table
-    resultsTableBody.replaceChildren();
-    result["contributions"].forEach((contribution) => {
-        const row = document.createElement("tr");
+	// populate results table
+	resultsTableBody.replaceChildren();
+	result["contributions"].forEach(appendContribution);
+};
 
-        const testName = document.createElement("td");
-        const testScore = document.createElement("td");
-        const testNotes = document.createElement("td");
+const appendContribution = (contribution) => {
+	const row = document.createElement("tr");
 
-        testName.textContent = contribution["name"];
-        testScore.textContent = `${contribution["units"]} / ${contribution["max_score"]}`;
-        testNotes.textContent = contribution["note"];
+	const testName = document.createElement("td");
+	const testScore = document.createElement("td");
+	const testNotes = document.createElement("td");
 
-        row.appendChild(testName);
-        row.appendChild(testScore);
-        row.appendChild(testNotes);
+	testName.textContent = contribution["name"];
+	testScore.textContent = `${contribution["units"]} / ${contribution["max_score"]}`;
+	testNotes.textContent = contribution["note"];
 
-        resultsTableBody.appendChild(row);
-    });
+	row.appendChild(testName);
+	row.appendChild(testScore);
+	row.appendChild(testNotes);
+
+	resultsTableBody.appendChild(row);
 };
 
 const scoreProject = async (payload) => {
-    const body = JSON.stringify(payload);
-    const bodySize = new TextEncoder().encode(body).byteLength;
+	const body = JSON.stringify({ ...payload, stream: true });
+	const bodySize = new TextEncoder().encode(body).byteLength;
 
-    // leave room under typical serverless request-body limits
-    if (bodySize > 4 * 1024 * 1024)
-        throw new Error(
-            "Upload is too large for the API. Try loading it by a Scratch project link instead.",
-        );
+	// leave room under typical serverless request-body limits
+	if (bodySize > 4 * 1024 * 1024)
+		throw new Error(
+			"Upload is too large for the API. Try loading it by a Scratch project link instead.",
+		);
 
-    setProgress(70);
-    const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-    });
-    setProgress(90);
+	setProgress(30);
+	const response = await fetch(API_URL, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body,
+	});
 
-    let data;
-    try {
-        data = await response.json();
-    } catch {
-        throw new Error(
-            `API returned an invalid response (HTTP ${response.status}).`,
-        );
-    }
+	if (!response.ok) {
+		let data;
+		try {
+			data = await response.json();
+		} catch {
+			throw new Error(`API request failed (HTTP ${response.status}).`);
+		}
+		throw new Error(
+			data.error || `API request failed (HTTP ${response.status}).`,
+		);
+	}
 
-    if (!response.ok)
-        throw new Error(
-            data.error || `API request failed (HTTP ${response.status}).`,
-        );
+	if (!response.body)
+		throw new Error("API response did not contain a stream.");
 
-    if (!data.result) throw new Error("API response did not contain a score.");
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	let buffer = "";
+	let resultReceived = false;
+	let hasStreamedContribution = false;
 
-    outputResults(data.result); // temporary for now, will add detailed logging later
-    setProgress(100);
+	const handleEvent = (eventText) => {
+		let event = "message";
+		const dataLines = [];
+
+		for (const line of eventText.split(/\r\n|\r|\n/)) {
+			if (line.startsWith("event:")) {
+				event = line.slice(6).trim();
+			} else if (line.startsWith("data:")) {
+				dataLines.push(line.slice(5).replace(/^ /, ""));
+			}
+		}
+
+		if (dataLines.length === 0) return;
+
+		let data;
+		try {
+			data = JSON.parse(dataLines.join("\n"));
+		} catch {
+			throw new Error("API returned an invalid streaming response.");
+		}
+
+		if (event === "progress") {
+			const stage =
+				typeof data.stage === "string" ? data.stage : "Scoring project";
+			const stageLabel = stage.charAt(0).toUpperCase() + stage.slice(1);
+			const detail =
+				typeof data.detail === "string" ? `: ${data.detail}` : "";
+			if (
+				Number.isFinite(data.completed) &&
+				Number.isFinite(data.total) &&
+				data.total > 0
+			) {
+				const [start, end] =
+					stage === "analyzing"
+						? [30, 60]
+						: stage === "scoring"
+						  ? [60, 99]
+						  : [30, 99];
+				setProgress(
+					Math.min(
+						end,
+						Math.max(
+							start,
+							start +
+								Math.round(
+									((end - start) * data.completed) /
+										data.total,
+								),
+						),
+					),
+				);
+				output.textContent = `${stageLabel}${detail} (${data.completed}/${data.total})...`;
+			} else {
+				output.textContent = `${stageLabel}${detail}...`;
+			}
+
+			if (data.contribution) {
+				if (!hasStreamedContribution) {
+					resultsTableBody.replaceChildren();
+					hasStreamedContribution = true;
+				}
+				appendContribution(data.contribution);
+			}
+		} else if (event === "result") {
+			if (!data.result)
+				throw new Error("API response did not contain a score.");
+			outputResults(data.result);
+			setProgress(100);
+			output.textContent = "Done, see results below.";
+			resultReceived = true;
+		} else if (event === "error") {
+			throw new Error(
+				data.error || "API failed while scoring the project.",
+			);
+		}
+	};
+
+	try {
+		while (true) {
+			const { value, done } = await reader.read();
+			buffer += decoder.decode(value, { stream: !done });
+
+			const events = buffer.split(/\r\n\r\n|\n\n|\r\r/);
+			buffer = events.pop();
+			events.forEach(handleEvent);
+
+			if (done) {
+				if (buffer.trim()) handleEvent(buffer);
+				break;
+			}
+		}
+	} finally {
+		reader.releaseLock();
+	}
+
+	if (!resultReceived) throw new Error("API stream ended without a score.");
+	await waitForProgress();
+	await new Promise((resolve) => setTimeout(resolve, 500));
 };
 
 const processSb3 = async (file) => {
-    if (typeof JSZip === "undefined") {
-        throw new Error("JSZip is not loaded.");
-    }
+	if (typeof JSZip === "undefined") {
+		throw new Error("JSZip is not loaded.");
+	}
 
-    setProgress(10);
-    const zip = await JSZip.loadAsync(file);
-    setProgress(20);
-    const projectFile = zip.file("project.json");
+	setProgress(5);
+	const zip = await JSZip.loadAsync(file);
+	setProgress(10);
+	const projectFile = zip.file("project.json");
 
-    if (!projectFile) {
-        throw new Error("Invalid SB3 file: project.json not found.");
-    }
+	if (!projectFile) {
+		throw new Error("Invalid SB3 file: project.json not found.");
+	}
 
-    const project = JSON.parse(await projectFile.async("string"));
-    if (!project || typeof project !== "object" || Array.isArray(project)) {
-        throw new Error("project.json must contain a JSON object.");
-    }
-    setProgress(35);
+	const project = JSON.parse(await projectFile.async("string"));
+	if (!project || typeof project !== "object" || Array.isArray(project)) {
+		throw new Error("project.json must contain a JSON object.");
+	}
+	setProgress(15);
 
-    const assets = {};
-    const assetFiles = Object.values(zip.files).filter(
-        (entry) => !entry.dir && entry.name !== "project.json",
-    );
-    for (const [index, entry] of assetFiles.entries()) {
-        assets[entry.name] = await entry.async("base64");
-        setProgress(35 + Math.round((25 * (index + 1)) / assetFiles.length));
-    }
-    if (assetFiles.length === 0) setProgress(60);
+	const assets = {};
+	const assetFiles = Object.values(zip.files).filter(
+		(entry) => !entry.dir && entry.name !== "project.json",
+	);
+	for (const [index, entry] of assetFiles.entries()) {
+		assets[entry.name] = await entry.async("base64");
+		setProgress(15 + Math.round((15 * (index + 1)) / assetFiles.length));
+	}
+	if (assetFiles.length === 0) setProgress(30);
 
-    return { project, assets };
+	return { project, assets };
 };
 
 const openFileDialog = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".sb3";
+	const input = document.createElement("input");
+	input.type = "file";
+	input.accept = ".sb3";
 
-    input.addEventListener(
-        "change",
-        async () => {
-            const file = input.files?.[0];
-            input.remove();
-            if (!file) return;
+	input.addEventListener(
+		"change",
+		async () => {
+			const file = input.files?.[0];
+			input.remove();
+			if (!file) return;
 
-            setBusy(true);
-            output.textContent = `Reading ${file.name}...`;
-            resetResults();
+			setBusy(true);
+			output.textContent = `Reading ${file.name}...`;
+			resetResults();
 
-            try {
-                setProgress(5);
-                output.textContent = "Scoring project...";
-                const payload = await processSb3(file);
-                await scoreProject(payload);
-            } catch (error) {
-                showError(error);
-            } finally {
-                setBusy(false);
-            }
-        },
-        { once: true },
-    );
+			try {
+				setProgress(2);
+				output.textContent = "Scoring project...";
+				const payload = await processSb3(file);
+				await scoreProject(payload);
+			} catch (error) {
+				showError(error);
+			} finally {
+				setBusy(false);
+			}
+		},
+		{ once: true },
+	);
 
-    input.click();
+	input.click();
 };
 
 const getScratchProjectId = (value) => {
-    const input = value.trim();
-    if (/^\d+$/.test(input)) return input;
+	const input = value.trim();
+	if (/^\d+$/.test(input)) return input;
 
-    // bunch of validation checks
-    let url;
-    try {
-        url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
-    } catch {
-        throw new Error("Enter a Scratch project ID or project link.");
-    }
+	// bunch of validation checks
+	let url;
+	try {
+		url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
+	} catch {
+		throw new Error("Enter a Scratch project ID or project link.");
+	}
 
-    if (!["scratch.mit.edu", "www.scratch.mit.edu"].includes(url.hostname)) {
-        throw new Error("The link must be a Scratch project link.");
-    }
+	if (!["scratch.mit.edu", "www.scratch.mit.edu"].includes(url.hostname)) {
+		throw new Error("The link must be a Scratch project link.");
+	}
 
-    const match = url.pathname.match(/^\/projects\/(\d+)(?:\/editor)?\/?$/);
-    if (!match) {
-        throw new Error("Could not find a project ID in that Scratch link.");
-    }
+	const match = url.pathname.match(/^\/projects\/(\d+)(?:\/editor)?\/?$/);
+	if (!match) {
+		throw new Error("Could not find a project ID in that Scratch link.");
+	}
 
-    return match[1];
+	return match[1];
 };
 
 uploadBtn.addEventListener("click", openFileDialog);
 
 loadBtn.addEventListener("click", async () => {
-    setBusy(true);
-    output.textContent = "Loading project...";
-    resetResults();
+	setBusy(true);
+	output.textContent = "Loading project...";
+	resetResults();
 
-    try {
-        const project_id = getScratchProjectId(linkInput.value);
-        setProgress(35);
-        output.textContent = "Scoring project...";
-        await scoreProject({ project_id });
-        output.textContent = "Done, see results below.";
-    } catch (error) {
-        showError(error);
-    } finally {
-        setBusy(false);
-    }
+	try {
+		const project_id = getScratchProjectId(linkInput.value);
+		setProgress(30);
+		output.textContent = "Scoring project...";
+		await scoreProject({ project_id });
+		output.textContent = "Done, see results below.";
+	} catch (error) {
+		showError(error);
+	} finally {
+		setBusy(false);
+	}
 });
