@@ -1,3 +1,9 @@
+@property --reveal-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -42,6 +48,7 @@ body {
     color: var(--text);
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 .flex-center {
@@ -84,18 +91,24 @@ nav {
     padding-inline-start: 19px;
     padding-inline-end: 24px;
     justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 100;
 }
 
 nav a {
     color: var(--nav-link);
     text-decoration: none;
-    border-bottom: 0px var(--nav-link);
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
 
     transition: color 200ms ease-out;
 }
 
-nav a:not(.dropdown-menu a, .no-hover a)::after {
+nav a:not(.dropdown-menu a, .no-hover, .site-logo)::after {
     content: "";
     position: absolute;
     width: 100%;
@@ -115,15 +128,50 @@ nav a:hover {
     color: var(--nav-hover);
 }
 
-nav a:not(.dropdown-menu, .no-hover):hover::after {
+nav a:not(.dropdown-menu a, .no-hover, .site-logo):hover::after {
     background-color: var(--nav-hover);
     transform: scaleX(1);
     transform-origin: bottom left;
 }
 
+.site-logo {
+    position: relative;
+    display: inline-flex;
+    isolation: isolate;
+}
+
+.site-logo::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    border: 2px solid var(--text);
+    border-radius: 6px;
+
+    --reveal-angle: 0deg;
+    -webkit-mask: conic-gradient(
+        from 0deg,
+        var(--text) 0deg var(--reveal-angle),
+        transparent var(--reveal-angle) 360deg
+    );
+    mask: conic-gradient(
+        from 0deg,
+        var(--text) 0deg var(--reveal-angle),
+        transparent var(--reveal-angle) 360deg
+    );
+
+    pointer-events: none;
+    transition: --reveal-angle 450ms ease-out;
+}
+
+.site-logo:hover::after,
+.site-logo:focus-visible::after {
+    --reveal-angle: 360deg;
+}
+
 .dropdown {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
 }
 
 .dropdown-menu {
@@ -131,7 +179,7 @@ nav a:not(.dropdown-menu, .no-hover):hover::after {
     position: absolute;
     top: 100%;
     left: 0;
-    min-width: 180px;
+    min-width: 250px;
     background-color: var(--bg);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     border-radius: 6px;
@@ -165,8 +213,14 @@ nav a:not(.dropdown-menu, .no-hover):hover::after {
 }
 
 @media (max-width: 768px) {
-    .row-align {
+    body > .row-align:not(nav),
+    header > .row-align,
+    main > .row-align {
         flex-direction: column;
+    }
+
+    nav.row-align {
+        flex-wrap: wrap;
     }
 
     nav .menu {

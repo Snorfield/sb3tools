@@ -1,6 +1,6 @@
 const themeBtn = document.querySelector(".theme");
 const themeIcon = themeBtn?.querySelector("i");
-const siteLogos = document.querySelectorAll(".site-logo");
+const siteLogos = document.querySelectorAll(".site-logo img");
 
 let theme = localStorage.getItem("theme");
 if (theme !== "light" && theme !== "dark") theme = "light";
